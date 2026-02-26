@@ -6,6 +6,7 @@ import streamlit as st
 import random
 
 
+
 ## Represent a cannonball, tracking its position and velocity.
 #
 class Cannonball:
@@ -58,8 +59,12 @@ class Cannonball:
             xs.append(self.getX())
             ys.append(self.getY())
             self.move(step, user_grav)
-
         return xs, ys
+    
+class Crazyball(Cannonball):
+    def move(self):
+        if self.getX() < 400:
+            self.rand_q = random.randrange(0,10)
 
 def run_app():
     st.title("Cannonball Trajectory")
@@ -69,13 +74,15 @@ def run_app():
     )
     velocity = st.selectbox("Initial velocity", options=[15, 25, 40], index=1)
 
-    gravity_options = {"Earth": 9.81}
+    gravity_options = {"Earth": 9.81,"Moon": 1.62}
+
     gravity_name = st.selectbox("Gravity", options=list(gravity_options.keys()), index=0)
     gravity = gravity_options[gravity_name]
     step = .1
 
     col1, col2 = st.columns(2)
     simulate = col1.button("Simulate")
+    CrazySimulate = col2.button("Crazy Simulate")
 
     if simulate:
         angle_rad = radians(angle_deg)
@@ -99,6 +106,11 @@ def run_app():
         )
         st.altair_chart(chart, use_container_width=True)
 
+class Print_Iface:
+    def Print_I:
+        
 
 if __name__ == "__main__":
     run_app()
+
+
