@@ -6,9 +6,18 @@ import streamlit as st
 import random
 
 
+class Print_Iface:
+    def __init__(self):
+        self.xs = []
+        self.ys = []
 
-## Represent a cannonball, tracking its position and velocity.
-#
+    def record_point(self, x, y):
+        self.xs.append(x)
+        self.ys.append(y)
+
+    def get_data(self):
+        return self.xs, self.ys
+
 class Cannonball:
     ## Create a new cannonball at the provided x position.
     #  @param x the x position of the ball
@@ -18,7 +27,7 @@ class Cannonball:
         self._y = 0
         self._vx = 0
         self._vy = 0
-
+        self.interface = Print_Iface()
     ## Move the cannon ball, using its current velocities.
     #  @param sec the amount of time that has elapsed.
     #
@@ -50,21 +59,30 @@ class Cannonball:
     def shoot(self, angle, velocity, user_grav, step=0.1):
         self._vx = velocity * cos(angle)
         self._vy = velocity * sin(angle)
-        self.move(step, user_grav)
+        #self.move(step, user_grav)
+        self.interface.record_point(self.getX(), self.getY())
 
-        xs = []
-        ys = []
+        xs = [self.getX()]
+        ys = [self.getY()]
 
-        while self.getY() > 1e-14:
+        while self.getY() >= 0:
             xs.append(self.getX())
             ys.append(self.getY())
             self.move(step, user_grav)
+            self.interface.record_point(self.getX(), self.getY())
         return xs, ys
     
 class Crazyball(Cannonball):
-    def move(self):
+    def __init__(self, x):
+        super().__init__(x)
+        self.rand_q = 0
+   
+    def move(self, sec, grav):
         if self.getX() < 400:
-            self.rand_q = random.randrange(0,10)
+            self.rand_q = random.randrange(0, 10)
+            self._vx += self.rand_q
+        super().move(sec, grav)
+
 
 def run_app():
     st.title("Cannonball Trajectory")
@@ -82,11 +100,16 @@ def run_app():
 
     col1, col2 = st.columns(2)
     simulate = col1.button("Simulate")
-    CrazySimulate = col2.button("Crazy Simulate")
+    crazy_simulate = col2.button("Crazy Simulate")
 
+    ball = None
     if simulate:
-        angle_rad = radians(angle_deg)
         ball = Cannonball(0)
+    elif crazy_simulate:
+        ball = Crazyball(0)
+
+    if ball:
+        angle_rad = radians(angle_deg)
         xs, ys = ball.shoot(angle_rad, velocity, gravity, step)
 
         if not xs:
@@ -99,16 +122,12 @@ def run_app():
             alt.Chart(df)
             .mark_line()
             .encode(
-                x=alt.X("x:Q", scale=alt.Scale(domain=[0, 200]), title="Distance (m)"),
-                y=alt.Y("y:Q", scale=alt.Scale(domain=[0, 100]), title="Height (m)")
+                x=alt.X("x:Q", title="Distance (m)"),
+                y=alt.Y("y:Q", title="Height (m)")
             )
             .properties(width=700, height=400)
         )
         st.altair_chart(chart, use_container_width=True)
-
-class Print_Iface:
-    def Print_I:
-        
 
 if __name__ == "__main__":
     run_app()
