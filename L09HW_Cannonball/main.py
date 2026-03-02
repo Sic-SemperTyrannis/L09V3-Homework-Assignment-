@@ -117,7 +117,6 @@ def run_app():
             return
 
         df = pd.DataFrame({"x": xs, "y": ys})
-
         chart = (
             alt.Chart(df)
             .mark_line()
